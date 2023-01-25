@@ -21,6 +21,7 @@ window.addEventListener('load', () => {
     DbOpenReq.addEventListener('success', (event) => {
         db = event.target.result;
         console.log('success', event.target.result);
+        getUser()
     })
 
 
@@ -39,7 +40,6 @@ window.addEventListener('load', () => {
 
         console.log('objectStoreName', db.objectStoreNames);
     })
-    getUser()
 })
 
 myForm.addEventListener('submit', event => {
@@ -94,6 +94,7 @@ function getUser() {
         <th>Name</th>
         <th>Password</th>
         <th>Email</th>
+        <th>Action</th>
         </tr>`;
         userTableElem.innerHTML += allUsers.map(user => {
             return `<tr>
@@ -101,6 +102,7 @@ function getUser() {
                                         <td>${user.name}</td>
                                         <td>${user.password}</td>
                                         <td>${user.email}</td>
+                                        <td><a href="#" onclick="removeUser(${user.userID})">Remove</a></td>
                                     </tr>`
         }).join('')
 
@@ -108,7 +110,28 @@ function getUser() {
 
 }
 
+function removeUser(userId) {
+    // event.preventDefault()
+    
+    let tx = createTx('users', 'readwrite')
+    
+    tx.addEventListener('complete', (event) => {
+        console.log('Delete Tx', event);
+    })
+    // console.log(tx);
 
+    let store=tx.objectStore('users');
+    let request=store.delete(userId);
+
+    request.addEventListener('error',(err)=>{
+        console.warn('request Error' , err)
+    })
+    request.addEventListener('success',(event)=>{
+        console.log('request success delete user' , event)
+        getUser()
+    })
+
+}
 
 
 
